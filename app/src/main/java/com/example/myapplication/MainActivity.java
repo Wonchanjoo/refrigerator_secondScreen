@@ -20,14 +20,27 @@ import android.view.View;
 import android.widget.EditText;
 
 import com.example.myapplication.databinding.ActivityMainBinding;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
     private MyViewModel viewModel;
     private ActivityMainBinding binding;
     private RecyclerView mRecyclerView;
     private MyRecyclerAdapter mAdapter;
+
+    private String editCategoryText;
+
+    private DatabaseReference mPostReference;
+    static ArrayList<String> arrayIndex = new ArrayList<>();
+    static ArrayList<String> arrayData = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +67,7 @@ public class MainActivity extends AppCompatActivity {
         };
         viewModel.categorysLiveData.observe(this, myObserver);
 
+        // 기본 카테고리 4개 추가
         viewModel.addCategory("과일");
         viewModel.addCategory("채소");
         viewModel.addCategory("생선");
@@ -83,6 +97,41 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
+    public void postFirebaseDatabase(boolean add) {
+        mPostReference = FirebaseDatabase.getInstance().getReference();
+        Map<String, Object> childUpdates = new HashMap<>();
+        Map<String, Object> postValues = null;
+        if(add) {
+            FirebasePost post = new FirebasePost(editCategoryText);
+            postValues = post.toMap();
+        }
+        Log.e("postFirebaseDatabase", " 데이터베이스에 추가: " + editCategoryText);
+        childUpdates.put("/category/" + editCategoryText, "");
+        mPostReference.updateChildren(childUpdates);
+    }
+
+    public void getFirebaseDatabase() {
+        ValueEventListener postListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                arrayData.clear();
+                arrayIndex.clear();
+                for(DataSnapshot postSnapshot: snapshot.getChildren()) {
+                    String key = postSnapshot.getKey();
+                    FirebasePost get = postSnapshot.getValue(FirebasePost.class);
+                    String resultName = get.category;
+                    arrayData.add(resultName);
+                    arrayIndex.add(key);
+                }
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        };
+    }
     public void categoryAddButtonClick(View v) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         LayoutInflater inflater = getLayoutInflater();
@@ -93,12 +142,20 @@ public class MainActivity extends AppCompatActivity {
         builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                String text = editCategory.getText().toString();
-                viewModel.addCategory(text);
+                editCategoryText = editCategory.getText().toString(); // 입력한 카테고리 받아오고
+                viewModel.addCategory(editCategoryText); // viewModel의 카테고리에 추가
+                // 데이터베이스에도 추가해야됨
+                postFirebaseDatabase(true);
+                getFirebaseDatabase();
             }
         });
         builder.setNegativeButton(android.R.string.cancel, null);
         builder.create().show();
         Log.e("OnClick", "추가 버튼 클릭");
+    }
+
+    public void categoryClick(View v) {
+        Intent intent = new Intent(this, MainActivity2.class);
+        startActivity(intent);
     }
 }

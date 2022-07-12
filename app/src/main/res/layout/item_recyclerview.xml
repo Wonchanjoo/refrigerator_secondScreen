@@ -13,6 +13,7 @@
         android:background="#673AB7"
         android:gravity="center"
         android:text="카테고리"
-        android:textColor="#FFFFFF" />
+        android:textColor="#FFFFFF"
+        android:onClick="categoryClick"/>
 
 </LinearLayout>
