@@ -12,23 +12,15 @@ public class MyViewModel extends ViewModel {
     public ArrayList<String> categorys = new ArrayList<>();
     public int eventPos = -1;
 
-    public MyViewModel() {
-        // 생성될 때 카테고리 3개 추가
-        categorys.add("과일");
-        categorys.add("채소");
-        categorys.add("육류");
-        categorysLiveData.setValue(categorys);
-    }
-
     public String getCategory(int pos) {
         return categorys.get(pos);
     }
 
     public void addCategory(String category) {
-        Log.e("addCategory", "추가");
         eventPos = getItemSize();
         categorys.add(category);
-        categorysLiveData.setValue(categorys);
+        categorysLiveData.setValue(categorys); // 옵저버에게 라이브데이터가 변경된 것을 알리기 위해
+        Log.e("ViewModel", category + " 추가");
     }
 
     public int getItemSize() {
