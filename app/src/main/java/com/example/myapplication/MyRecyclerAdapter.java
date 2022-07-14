@@ -16,7 +16,7 @@ public class MyRecyclerAdapter extends RecyclerView.Adapter<MyRecyclerAdapter.Vi
 
     public MyRecyclerAdapter(MyViewModel viewModel) {
         this.viewModel = viewModel;
-    } // 생성자
+    }
 
     /*
     ViewHolder inner Class - 아이템 뷰를 저장
@@ -58,6 +58,6 @@ public class MyRecyclerAdapter extends RecyclerView.Adapter<MyRecyclerAdapter.Vi
 
     @Override
     public int getItemCount() {
-        return viewModel.getItemSize();
+        return viewModel.getCategorySize();
     }
 }

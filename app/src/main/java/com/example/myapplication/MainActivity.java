@@ -3,7 +3,6 @@ package com.example.myapplication;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -17,9 +16,10 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 
-import com.example.myapplication.databinding.ActivityMainBinding;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -32,7 +32,6 @@ import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
     private MyViewModel viewModel;
-    private ActivityMainBinding binding;
     private RecyclerView mRecyclerView;
     private MyRecyclerAdapter mAdapter;
 
@@ -45,12 +44,11 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding = ActivityMainBinding.inflate(getLayoutInflater());
-        setContentView(binding.getRoot());
+        setContentView(R.layout.activity_main);
 
         viewModel = new ViewModelProvider(this).get(MyViewModel.class);
 
-        mRecyclerView = (RecyclerView)binding.recyclerView;
+        mRecyclerView = (RecyclerView)findViewById(R.id.recyclerView);
         mAdapter = new MyRecyclerAdapter(viewModel); // 어댑터 생성
 
         mRecyclerView.setAdapter(mAdapter); // 리사이클러뷰에 MyRecyclerAdapter 객체 지정
@@ -60,8 +58,6 @@ public class MainActivity extends AppCompatActivity {
         final Observer<ArrayList<String>> myObserver = new Observer<ArrayList<String>>() {
             @Override
             public void onChanged(ArrayList<String> strings) {
-                String str = "데이터 개수 : " + viewModel.getItemSize();
-                Log.e("Observer 실행", str);
                 mAdapter.notifyDataSetChanged(); // 어댑터에게 데이터가 변경되었다는 것을 알림
             }
         };
@@ -156,6 +152,9 @@ public class MainActivity extends AppCompatActivity {
 
     public void categoryClick(View v) {
         Intent intent = new Intent(this, MainActivity2.class);
+        TextView t = (TextView) v;
+        Log.e("클릭한 TextView", (String)t.getText());
+        intent.putExtra("category", (String)t.getText());
         startActivity(intent);
     }
 }
