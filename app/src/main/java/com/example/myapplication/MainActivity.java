@@ -16,7 +16,6 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -31,6 +30,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
+    private String refrigeratorName;
+
     private MyViewModel viewModel;
     private RecyclerView mRecyclerView;
     private MyRecyclerAdapter mAdapter;
@@ -45,6 +46,9 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        refrigeratorName = "냉장고1";
+        setTitle(refrigeratorName + "의 냉장고");
 
         viewModel = new ViewModelProvider(this).get(MyViewModel.class);
 
@@ -101,8 +105,8 @@ public class MainActivity extends AppCompatActivity {
             FirebasePost post = new FirebasePost(editCategoryText);
             postValues = post.toMap();
         }
-        Log.e("postFirebaseDatabase", " 데이터베이스에 추가: " + editCategoryText);
-        childUpdates.put("/category/" + editCategoryText, "");
+        String str = "/냉장고/" + refrigeratorName + "/" + editCategoryText;
+        childUpdates.put(str, ""); // 데이터베이스에 카테고리 추가
         mPostReference.updateChildren(childUpdates);
     }
 
@@ -128,6 +132,8 @@ public class MainActivity extends AppCompatActivity {
             }
         };
     }
+
+    // 카테고리 추가
     public void categoryAddButtonClick(View v) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         LayoutInflater inflater = getLayoutInflater();
@@ -150,6 +156,7 @@ public class MainActivity extends AppCompatActivity {
         Log.e("OnClick", "추가 버튼 클릭");
     }
 
+    // 카테고리 클릭 -> Activity 이동
     public void categoryClick(View v) {
         Intent intent = new Intent(this, MainActivity2.class);
         TextView t = (TextView) v;

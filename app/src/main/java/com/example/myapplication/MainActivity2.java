@@ -29,6 +29,7 @@ MainActivity에서 카테고리를 클릭하면 해당 카테고리의 이름을
  */
 
 public class MainActivity2 extends AppCompatActivity {
+    private String refrigeratorName;
     private String category;
 
     private MyViewModel2 viewModel;
@@ -59,6 +60,7 @@ public class MainActivity2 extends AppCompatActivity {
 
         Intent intent = getIntent();
         category = intent.getStringExtra("category");
+        refrigeratorName = "냉장고1";
 
         getFirebaseDatabase();
     }
@@ -69,12 +71,12 @@ public class MainActivity2 extends AppCompatActivity {
 
     public void getFirebaseDatabase() {
         Log.e("getFirebaseDatabase2", "함수 실행");
-        FirebaseDatabase.getInstance().getReference().child("category").child(category).addValueEventListener(new ValueEventListener() {
+        FirebaseDatabase.getInstance().getReference().child("냉장고").child(refrigeratorName).child(category).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 Log.e("getFirebaseDatabase", "onDataChange");
                 for(DataSnapshot data : snapshot.getChildren()) {
-                    FirebasePost2 get = data.getValue(FirebasePost2.class);
+                    //FirebasePost2 get = data.getValue(FirebasePost2.class);
                     String key = data.getKey();
                     Log.e("getFirebaseDatabase", "key = " + key);
                     viewModel.addItem(key);

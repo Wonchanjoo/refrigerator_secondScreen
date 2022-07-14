@@ -19,15 +19,18 @@ public class MyRecyclerAdapter2 extends RecyclerView.Adapter<MyRecyclerAdapter2.
 
     class ViewHolder2 extends RecyclerView.ViewHolder {
         TextView item;
+        TextView item2;
 
         public ViewHolder2(View itemView) {
             super(itemView);
             this.item = itemView.findViewById(R.id.itemTextView);
+            this.item2 = itemView.findViewById(R.id.itemTextView2);
         }
 
         public void setContents(int pos) {
             String text = viewModel.items.get(pos);
             item.setText(text);
+            item2.setText(text);
         }
     }
 
