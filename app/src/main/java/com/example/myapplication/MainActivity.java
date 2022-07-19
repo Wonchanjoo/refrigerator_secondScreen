@@ -12,6 +12,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -31,6 +32,7 @@ import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
     private String refrigeratorName;
+    private boolean init = false;
 
     private MyViewModel viewModel;
     private RecyclerView mRecyclerView;
@@ -47,10 +49,10 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        refrigeratorName = "냉장고1";
+        refrigeratorName = "냉장고1"; // 냉장고 이름
         setTitle(refrigeratorName + "의 냉장고");
 
-        viewModel = new ViewModelProvider(this).get(MyViewModel.class);
+        viewModel = new ViewModelProvider(this).get(MyViewModel.class); // 뷰모델 생성
 
         mRecyclerView = (RecyclerView)findViewById(R.id.recyclerView);
         mAdapter = new MyRecyclerAdapter(viewModel); // 어댑터 생성
@@ -58,6 +60,8 @@ public class MainActivity extends AppCompatActivity {
         mRecyclerView.setAdapter(mAdapter); // 리사이클러뷰에 MyRecyclerAdapter 객체 지정
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this)); // 리사이클러뷰에 LinearLayoutManager 객체 지정
         mRecyclerView.setHasFixedSize(true); // View마다 크기 똑같게
+
+        registerForContextMenu(mRecyclerView);
 
         final Observer<ArrayList<String>> myObserver = new Observer<ArrayList<String>>() {
             @Override
@@ -67,15 +71,12 @@ public class MainActivity extends AppCompatActivity {
         };
         viewModel.categorysLiveData.observe(this, myObserver);
 
-        // 기본 카테고리 4개 추가
-        viewModel.addCategory("과일");
-        viewModel.addCategory("채소");
-        viewModel.addCategory("생선");
-        viewModel.addCategory("육류");
+        // DB에 있는 카테고리들 가져오기
+        getFirebaseDatabase();
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
+    public boolean onCreateOptionsMenu(Menu menu) { // 상단의 달력, 설정 메뉴 만들어질 때
         getMenuInflater().inflate(R.menu.menu, menu);
         return true;
     }
@@ -97,6 +98,34 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.information: // 정보 버튼 - 카테고리에는 필요 없으므로 삭제해야댐!!
+                Log.e("onContextItemSelected", "정보 버튼 클릭");
+                break;
+            case R.id.delete: // 카테고리 삭제하기
+                Log.e("delete", "longClickPosition = " + viewModel.longClickPosition);
+                // 데이터베이스에도 삭제해야됨
+                String deleteName = viewModel.categorys.get(viewModel.longClickPosition);
+                Log.e("delete", "delete name = " + deleteName);
+                deleteCategory(viewModel.categorys.get(viewModel.longClickPosition));
+                viewModel.deleteItem(viewModel.longClickPosition);
+                break;
+        }
+        return true;
+    }
+
+    public void createCategoryInDataBase(String category) {
+        mPostReference = FirebaseDatabase.getInstance().getReference();
+        mPostReference.child("냉장고").child(refrigeratorName).child(category).setValue("");
+    }
+
+    public void deleteCategory(String category) {
+        mPostReference = FirebaseDatabase.getInstance().getReference();
+        mPostReference.child("냉장고").child(refrigeratorName).child(category).removeValue();
+    }
+
     public void postFirebaseDatabase(boolean add) {
         mPostReference = FirebaseDatabase.getInstance().getReference();
         Map<String, Object> childUpdates = new HashMap<>();
@@ -105,32 +134,30 @@ public class MainActivity extends AppCompatActivity {
             FirebasePost post = new FirebasePost(editCategoryText);
             postValues = post.toMap();
         }
-        String str = "/냉장고/" + refrigeratorName + "/" + editCategoryText;
-        childUpdates.put(str, ""); // 데이터베이스에 카테고리 추가
-        mPostReference.updateChildren(childUpdates);
+        String str = "/냉장고/" + "냉장고2" + "/";
+        //childUpdates.put(str, "추가", ""); // 데이터베이스에 카테고리 추가
+        //mPostReference.updateChildren(childUpdates);
+        mPostReference.child("냉장고").child("냉장고2").child("추가").setValue("");
     }
 
     public void getFirebaseDatabase() {
-        ValueEventListener postListener = new ValueEventListener() {
+        Log.e("getFirebaseDatabase", "함수 실행");
+        FirebaseDatabase.getInstance().getReference().child("냉장고").child(refrigeratorName).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                arrayData.clear();
-                arrayIndex.clear();
-                for(DataSnapshot postSnapshot: snapshot.getChildren()) {
-                    String key = postSnapshot.getKey();
-                    FirebasePost get = postSnapshot.getValue(FirebasePost.class);
-                    String resultName = get.category;
-                    arrayData.add(resultName);
-                    arrayIndex.add(key);
+                Log.e("getFirebaseDatabase", "onDataChange");
+                for(DataSnapshot data : snapshot.getChildren()) {
+                    String key = data.getKey();
+                    Log.e("getFirebaseDatabase", "key = " + key);
+                    viewModel.addCategory(key);
                 }
-
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
 
             }
-        };
+        });
     }
 
     // 카테고리 추가
@@ -145,10 +172,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 editCategoryText = editCategory.getText().toString(); // 입력한 카테고리 받아오고
-                viewModel.addCategory(editCategoryText); // viewModel의 카테고리에 추가
-                // 데이터베이스에도 추가해야됨
-                postFirebaseDatabase(true);
-                getFirebaseDatabase();
+                viewModel.addCategory(editCategoryText); // viewModel에 카테고리 추가
+                createCategoryInDataBase(editCategoryText); // 데이터베이스에 카테고리 추가
             }
         });
         builder.setNegativeButton(android.R.string.cancel, null);
@@ -160,8 +185,8 @@ public class MainActivity extends AppCompatActivity {
     public void categoryClick(View v) {
         Intent intent = new Intent(this, MainActivity2.class);
         TextView t = (TextView) v;
-        Log.e("클릭한 TextView", (String)t.getText());
-        intent.putExtra("category", (String)t.getText());
-        startActivity(intent);
+        Log.e("categoryClick", (String)t.getText() + " Click");
+        intent.putExtra("category", (String)t.getText()); // intent에 클릭한 카테고리 이름 넣어주기
+        startActivity(intent); // 액티비티 이동
     }
 }

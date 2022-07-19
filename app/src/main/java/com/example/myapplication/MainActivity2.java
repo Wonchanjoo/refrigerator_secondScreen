@@ -41,15 +41,16 @@ public class MainActivity2 extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main2);
 
-        viewModel = new ViewModelProvider(this).get(MyViewModel2.class);
+        viewModel = new ViewModelProvider(this).get(MyViewModel2.class); // 뷰모델 생성
 
         mRecyclerView = (RecyclerView)findViewById(R.id.itemRecyclerView);
-        mAdapter = new MyRecyclerAdapter2(viewModel);
+        mAdapter = new MyRecyclerAdapter2(viewModel); // 어댑터 생성
 
-        mRecyclerView.setAdapter(mAdapter);
+        mRecyclerView.setAdapter(mAdapter); // 리사이클러뷰에 MyRecyclerAdapter2 객체 지정
         mRecyclerView.setLayoutManager(new GridLayoutManager(this, 3));
         mRecyclerView.setHasFixedSize(true);
 
+        // item에 변화가 생긴 경우 어댑터에게 알려서 갱신하도록
         final Observer<ArrayList<String>> myObserver = new Observer<ArrayList<String>>() {
             @Override
             public void onChanged(ArrayList<String> strings) {
@@ -58,11 +59,12 @@ public class MainActivity2 extends AppCompatActivity {
         };
         viewModel.itemsLiveData.observe(this, myObserver);
 
+        // MainActivity에서 넘어온 Intent, 카테고리 이름이 담겨있음
         Intent intent = getIntent();
         category = intent.getStringExtra("category");
         refrigeratorName = "냉장고1";
-
-        getFirebaseDatabase();
+        setTitle(category);
+        getFirebaseDatabase(); // 카테고리 안에 있는 아이템들을 가져와서 보여줌
     }
 
     public void addItemBtnClick(View v) {
@@ -79,7 +81,7 @@ public class MainActivity2 extends AppCompatActivity {
                     //FirebasePost2 get = data.getValue(FirebasePost2.class);
                     String key = data.getKey();
                     Log.e("getFirebaseDatabase", "key = " + key);
-                    viewModel.addItem(key);
+                    //viewModel.addItem(key);
                 }
             }
 
