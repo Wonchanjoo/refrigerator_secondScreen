@@ -20,6 +20,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -135,15 +136,13 @@ public class CategoryActivity extends AppCompatActivity {
     }
 
     public void getFirebaseDatabase() {
-        Log.e("getFirebaseDatabase", "함수 실행");
+        Log.e("CategiryActivity", "getFirebaseDatabase()");
         FirebaseDatabase.getInstance().getReference().child("냉장고").child(refrigeratorName).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                Log.e("getFirebaseDatabase", "onDataChange");
                 for(DataSnapshot data : snapshot.getChildren()) {
-                    String key = data.getKey();
-                    Log.e("getFirebaseDatabase", "key = " + key);
-                    viewModel.addCategory(key);
+                    String key = data.getKey(); // key = 카테고리 이름
+                    viewModel.addCategory(key); // 뷰모델에 넣어주기
                 }
             }
 
@@ -167,6 +166,10 @@ public class CategoryActivity extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 editCategoryText = editCategory.getText().toString(); // 입력한 카테고리 받아오고
+                if(editCategoryText.equals("")) {
+                    Toast.makeText(CategoryActivity.this, "카테고리를 입력하세요", Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 viewModel.addCategory(editCategoryText); // viewModel에 카테고리 추가
                 createCategoryInDataBase(editCategoryText); // 데이터베이스에 카테고리 추가
             }
