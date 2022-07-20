@@ -10,13 +10,10 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MyApplication">
         <activity
-            android:name=".CalendarActivity"
+            android:name=".ItemActivity"
             android:exported="false" />
         <activity
-            android:name=".MainActivity2"
-            android:exported="false" />
-        <activity
-            android:name=".MainActivity"
+            android:name=".CategoryActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -24,6 +21,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".CalendarActivity"
+            android:exported="false" />
     </application>
 
 </manifest>

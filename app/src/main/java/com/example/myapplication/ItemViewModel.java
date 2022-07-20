@@ -5,11 +5,14 @@ import androidx.lifecycle.ViewModel;
 
 import java.util.ArrayList;
 
-public class MyViewModel2 extends ViewModel {
+public class ItemViewModel extends ViewModel {
     public MutableLiveData<ArrayList<String>> itemsLiveData = new MutableLiveData<>();
     public ArrayList<String> items = new ArrayList<>();
+    public int longClickPosition;
 
     public void addItem(String item) {
+        if(items.contains(item))
+            return;
         items.add(item);
         itemsLiveData.setValue(items);
     }
