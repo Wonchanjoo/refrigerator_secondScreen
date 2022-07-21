@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.MenuItem;
@@ -79,6 +80,11 @@ public class ItemActivity extends AppCompatActivity {
 
     public void addItemBtnClick(View v) {
         // item 추가하는 액티비티로 이동
+        Intent intent = new Intent(this, AddItemActivity.class);
+        intent.putExtra("refrigeratorName", refrigeratorName); // 냉장고 이름 전달
+        intent.putExtra("category", category); // 카테고리 이름 전달
+        intent.putExtra("itemViewModel", (Parcelable) viewModel); // item 뷰모델 전달
+        startActivity(intent);
     }
 
     public void getFirebaseDatabase() {

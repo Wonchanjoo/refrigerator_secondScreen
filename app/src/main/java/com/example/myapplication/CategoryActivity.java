@@ -113,7 +113,7 @@ public class CategoryActivity extends AppCompatActivity {
                 // 데이터베이스에도 삭제해야됨
                 String deleteName = viewModel.categorys.get(viewModel.longClickPosition);
                 Log.e("delete", "delete name = " + deleteName);
-                deleteCategory(viewModel.categorys.get(viewModel.longClickPosition));
+                deleteCategoryInDatabase(viewModel.categorys.get(viewModel.longClickPosition));
                 viewModel.deleteItem(viewModel.longClickPosition);
                 break;
         }
@@ -122,14 +122,14 @@ public class CategoryActivity extends AppCompatActivity {
 
 
     // 데이터베이스에 새로운 카테고리를 만드는 함수
-    public void createCategoryInDataBase(String category) {
+    public void createCategoryInDatabase(String category) {
         databaseCategoryReference = FirebaseDatabase.getInstance().getReference();
         // "냉장고"/냉장고 이름/입력받은 카테고리
         databaseCategoryReference.child("냉장고").child(refrigeratorName).child(category).setValue("");
     }
 
     // 데이터베이스에서 카테고리를 삭제하는 함수
-    public void deleteCategory(String category) {
+    public void deleteCategoryInDatabase(String category) {
         databaseCategoryReference = FirebaseDatabase.getInstance().getReference();
         // "냉장고"/냉장고 이름/입력받은 카테고리 를 삭제
         databaseCategoryReference.child("냉장고").child(refrigeratorName).child(category).removeValue();
@@ -158,7 +158,7 @@ public class CategoryActivity extends AppCompatActivity {
         Log.e("CategoryActivity", "categoryAddButtonClick");
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         LayoutInflater inflater = getLayoutInflater();
-        View layout = inflater.inflate(R.layout.dialog_category_add, null);
+        View layout = inflater.inflate(R.layout.dialog_add_category, null);
         builder.setView(layout);
 
         EditText editCategory = (EditText) layout.findViewById(R.id.editCategory);
@@ -171,10 +171,12 @@ public class CategoryActivity extends AppCompatActivity {
                     return;
                 }
                 viewModel.addCategory(editCategoryText); // viewModel에 카테고리 추가
-                createCategoryInDataBase(editCategoryText); // 데이터베이스에 카테고리 추가
+                createCategoryInDatabase(editCategoryText); // 데이터베이스에 카테고리 추가
             }
         });
+
         builder.setNegativeButton(android.R.string.cancel, null);
+
         builder.create().show();
     }
 
