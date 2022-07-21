@@ -319,6 +319,7 @@ public class AddItemActivity extends AppCompatActivity {
                 Log.e("AddItemActivity", category + "에 " + name + " 추가");
 
                 Intent intent = new Intent(context, ItemActivity.class);
+                intent.putExtra("category", category);
                 startActivity(intent);
             }
         });
